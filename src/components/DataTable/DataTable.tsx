@@ -1,56 +1,88 @@
-import React from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableContainer from '@material-ui/core/TableContainer';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
-import Paper from '@material-ui/core/Paper';
+import React, {useState} from 'react';
+import { DataGrid, GridColDef, GridValueGetterParams, GridRowModel } from '@material-ui/data-grid';
+import { server_calls } from '../../api';
+import { useGetData } from '../../custom-hooks';
+import {
+    Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle
+} from '@material-ui/core';
+import { DroneForm } from '../../components/DroneForm';
 
-const useStyles = makeStyles({
-  table: {
-    minWidth: 650,
-  },
-});
-
-function createData(name, calories, fat) {
-  return { name, calories, fat };
+interface gridData {
+        id?:string;
 }
 
-const rows = [
-  createData('HGBD: R GUNDAM AEGIS KNIGHT', '$27.95', 25.0),
-  createData('HGBD: R ALUS EARTHREE GUNDAM', '$18.95', 115.0),
-  createData('HGBD:R GUNDAM G-ELSE', '$22.95', 62.0),
-  createData('HG DREADNOUGHT GUNDAM', '$18.95', 33.0),
-  createData('HG IBO GUNDAM BAEL', '$16.95', 27.0),
+const columns: GridColDef[] = [
+    { field: 'id', headerName: 'ID', width: 170 },
+    { field: 'name', headerName: 'Drone name', width: 130 },
+    { field: 'description', headerName: 'Description', width: 130 },
+    {
+    field: 'price',
+    headerName: 'Price',
+    type: 'string',
+    width: 90,
+    }
 ];
 
-export const DataTable = () => {
-  const classes = useStyles();
+interface gridData {
+    id?: string;
+}
 
-  return (
-    <TableContainer component={Paper}>
-      <Table className={classes.table} aria-label="simple table">
-        <TableHead>
-          <TableRow>
-            <TableCell>Kit Name (Per Box)</TableCell>
-            <TableCell align="right">Price ($)</TableCell>
-            <TableCell align="right">Availability (#)</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {rows.map((row) => (
-            <TableRow key={row.name}>
-              <TableCell component="th" scope="row">
-                {row.name}
-              </TableCell>
-              <TableCell align="right">{row.calories}</TableCell>
-              <TableCell align="right">{row.fat}</TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
-  );
+export const DataTable = () => {
+    let {droneData, getData} = useGetData();
+    let [open, setOpen] = useState(false);
+    let [gridData, setData] = useState<gridData>({id:''});
+
+    let handleOpen = () => {
+        setOpen(true)
+    };
+    let handleClose = () => {
+        setOpen(false)
+        getData()
+    };
+
+    // let handleCheckbox = (arr) => {
+    //     if(arr !== gridData) {
+    //         setData(arr[0])
+    //     }
+    // }
+
+    let handleCheckbox = (id:GridRowModel) => {
+        if(id[0] === undefined){
+            setData({id:''})
+        } else {
+            setData({id:id[0]})
+        }
+    };
+
+    let deleteData = () => {
+        server_calls.delete(gridData.id!)
+        getData()
+    };
+
+    return (
+        <div style={{ height: 475, width: '100%'}}>
+            <h2>
+                Drones in Inventory
+            </h2>
+            <DataGrid rows={droneData} columns={columns} pageSize={5} checkboxSelection onSelectionModelChange = {handleCheckbox} />
+            {console.log(gridData)}
+            <Button onClick={handleOpen}>Update</Button>
+            <Button variant="contained" color="secondary" onClick={deleteData}>Delete</Button>
+            <Dialog open={open} onClose={handleClose} aria-labelledby='form-dialog-title'>
+                <DialogTitle>Update Drone</DialogTitle>
+                <DialogContent>
+                    <DroneForm id={gridData.id!} />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleClose} color="primary">Cancel</Button>
+                    <Button onClick={handleClose} color="primary">Done</Button>
+                </DialogActions>
+            </Dialog>
+        </div>
+    )
 }

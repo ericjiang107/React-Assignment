@@ -14,7 +14,12 @@ import { Drawer as MUIDrawer,
     Typography,
     Divider,
     Button,
-    CssBaseline
+    CssBaseline,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle
 } from '@material-ui/core';
 import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
@@ -22,7 +27,7 @@ import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import clsx from 'clsx';
 import { RouteComponentProps, withRouter, Switch, Route } from 'react-router-dom';
 import { textChangeRangeNewSpan } from 'typescript';
-import { DataTable } from '../../components'
+import { DataTable, DroneForm } from '../../components'
 
 // Setting up drawer styling and methods to open/close
 const drawerWidth = 240;
@@ -103,8 +108,9 @@ export const Dashboard = withRouter((props: DashProps) => {
     const { history } = props;
     const classes = useStyles();
     const theme = useTheme(); 
-    // UseState Hook:
+    // UseState Hook: (Plus opening of appBar / dialogPopUp)
     const [open, setOpen] =useState(false);
+    const [dialogOpen, setDialogOpen] = useState(false);
     
     // Functions to set the state of 'open':
     const handleDrawerOpen = () => {
@@ -113,6 +119,15 @@ export const Dashboard = withRouter((props: DashProps) => {
     // Functions to set the state of 'close':
     const handleDrawerClose = () => {
         setOpen(false);
+    };
+    
+    // Functions to set the state of 'dialogOpen':
+    const handleDialogClickOpen = () => {
+        setDialogOpen(true);
+    };
+    // Functions to set the state of 'dialogClose':
+    const handleDialogClickClose = () => {
+        setDialogOpen(false);
     };
 
     // Organiztion - keeping a few items for later 
@@ -148,7 +163,20 @@ export const Dashboard = withRouter((props: DashProps) => {
                     <Typography variant='h5' noWrap>
                         Purchase Kits
                     </Typography>
-                    <Button className={classes.toolbar_button}>Create New Portfolio</Button>
+                    <Button className={classes.toolbar_button} onClick={handleDialogClickOpen}>Create New Portfolio</Button>
+                    {/* Dialog */}
+                    <Dialog open={dialogOpen} onClose={handleDialogClickClose}>
+                        <DialogTitle id="form-dialog-title">
+                            Add a New Drone
+                        </DialogTitle>
+                        <DialogContent>
+                            <DroneForm />
+                        </DialogContent>
+                        <DialogActions>
+                            <Button onClick={handleDialogClickClose} color='primary'>Cancel</Button>
+                            <Button onClick={handleDialogClickClose} color='primary'>Done</Button>
+                        </DialogActions>
+                    </Dialog>
                 </Toolbar>
             </AppBar>
             <MUIDrawer

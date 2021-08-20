@@ -4,26 +4,31 @@ import { Home, Dashboard, SignIn } from './components';
 import reportWebVitals from './reportWebVitals';
 import './styles.css';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom'; 
+// import the redux store to provide access at an app-wide level
+import { Provider } from 'react-redux';
+import { store } from './redux/store';
 
 ReactDOM.render(
   <React.StrictMode>
-    <Router>
-      <Switch>
+    <Provider store={ store }>
+      <Router>
+        <Switch>
 
-        <Route exact path='/'>
-          <Home title={'Gunpla'} />
-        </Route>
+          <Route exact path='/'>
+            <Home title={'Gunpla'} />
+          </Route>
 
-        <Route path='/dashboard'>
-          <Dashboard />
-        </Route>
+          <Route path='/dashboard'>
+            <Dashboard />
+          </Route>
 
-        <Route path='/signin'>
-          <SignIn /> 
-        </Route>
+          <Route path='/signin'>
+            <SignIn /> 
+          </Route>
 
-      </Switch>
-    </Router>
+        </Switch>
+      </Router>
+    </Provider>
   </React.StrictMode>,
   document.getElementById('root')
 );
